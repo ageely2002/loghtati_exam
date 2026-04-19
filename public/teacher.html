@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المعلم — اختبار سموم قاتلة</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1a2e;--ink-mid:#2d2d4e;--ink-light:#6b7280;
+  --gold:#b8952a;--gold-light:#d4af5a;--gold-faint:#faf4e6;
+  --rule:#c5b27a;--white:#fff;--red:#dc2626;--green:#16a34a;
+  --blue:#1d4ed8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Naskh Arabic',serif;background:#f0ebe0;color:var(--ink);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;}
+.login-card{background:var(--white);border:2px solid var(--gold);max-width:420px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative;}
+.login-card::before{content:'';position:absolute;inset:4px;border:.75px solid var(--rule);pointer-events:none;}
+.login-top{background:var(--ink);padding:24px;text-align:center;}
+.login-top h1{font-family:'Scheherazade New',serif;font-size:24px;color:var(--gold-light);margin-bottom:4px;}
+.login-top p{font-size:13px;color:rgba(255,255,255,.6);}
+.login-body{padding:28px;}
+.login-body label{display:block;font-size:15px;font-weight:700;color:var(--ink-mid);margin-bottom:8px;}
+.login-body input{width:100%;border:1.5px solid var(--rule);padding:10px 14px;
+  font-size:15px;font-family:'Noto Naskh Arabic',serif;outline:none;}
+.login-body input:focus{border-color:var(--gold);}
+.login-btn{width:100%;background:var(--ink);color:var(--white);border:none;padding:13px;
+  font-family:'Noto Naskh Arabic',serif;font-size:17px;font-weight:700;cursor:pointer;
+  border-right:5px solid var(--gold);margin-top:16px;transition:background .2s;}
+.login-btn:hover{background:var(--ink-mid);}
+.login-err{color:var(--red);font-size:13px;margin-top:8px;display:none;}
+
+/* DASHBOARD */
+#dashboard{display:none;}
+.dash-header{background:var(--ink);color:var(--white);padding:14px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:3px solid var(--gold);}
+.dash-header h1{font-family:'Scheherazade New',serif;font-size:22px;color:var(--gold-light);}
+.dash-actions{display:flex;gap:10px;}
+.btn{padding:9px 20px;font-family:'Noto Naskh Arabic',serif;font-size:14px;font-weight:700;
+  border:none;cursor:pointer;transition:background .2s;}
+.btn-export{background:var(--gold);color:var(--ink);border-right:3px solid var(--ink);}
+.btn-export:hover{background:var(--gold-light);}
+.btn-refresh{background:rgba(255,255,255,.15);color:var(--white);border:1px solid rgba(255,255,255,.3);}
+.btn-refresh:hover{background:rgba(255,255,255,.25);}
+.btn-logout{background:transparent;color:rgba(255,255,255,.6);font-size:13px;border:none;cursor:pointer;}
+
+.dash-body{max-width:1100px;margin:0 auto;padding:28px 20px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--white);border:1.5px solid #ddd5c0;padding:18px;text-align:center;
+  border-top:4px solid var(--gold);}
+.stat-val{font-family:'Scheherazade New',serif;font-size:36px;font-weight:700;color:var(--ink);}
+.stat-lbl{font-size:13px;color:var(--ink-light);margin-top:4px;}
+
+/* CHART */
+.chart-section{background:var(--white);border:1.5px solid #ddd5c0;padding:20px;margin-bottom:24px;}
+.chart-title{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--ink-mid);
+  border-right:4px solid var(--gold);padding-right:10px;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+.bar-lbl{width:90px;text-align:left;color:var(--ink-mid);font-weight:600;flex-shrink:0;}
+.bar-track{flex:1;background:#f0ebe0;height:24px;position:relative;overflow:hidden;}
+.bar-fill{height:100%;transition:width .6s ease;display:flex;align-items:center;padding-right:8px;
+  font-size:12px;font-weight:700;color:var(--white);justify-content:flex-end;}
+.bar-num{width:30px;text-align:right;font-weight:700;color:var(--ink);}
+
+/* TABLE */
+.table-section{background:var(--white);border:1.5px solid #ddd5c0;overflow:hidden;}
+.table-header{background:var(--ink);color:var(--white);padding:14px 20px;
+  display:flex;justify-content:space-between;align-items:center;}
+.table-header h2{font-size:16px;font-weight:700;color:var(--gold-light);}
+.search-box{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  padding:6px 14px;color:var(--white);font-family:'Noto Naskh Arabic',serif;font-size:14px;
+  width:220px;outline:none;}
+.search-box::placeholder{color:rgba(255,255,255,.4);}
+.search-box:focus{background:rgba(255,255,255,.2);}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+thead th{background:var(--gold-faint);padding:10px 14px;font-weight:700;
+  color:var(--ink-mid);border-bottom:2px solid var(--rule);text-align:right;}
+tbody tr{border-bottom:1px solid #eee5d5;transition:background .15s;}
+tbody tr:hover{background:#fdf9f0;}
+tbody td{padding:10px 14px;color:var(--ink);}
+.score-pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:13px;}
+.pill-high{background:#dcfce7;color:#166534;}
+.pill-mid{background:#fef9c3;color:#92400e;}
+.pill-low{background:#fee2e2;color:#991b1b;}
+.btn-del{background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 6px;}
+.btn-del:hover{background:#fee2e2;}
+.empty-state{text-align:center;padding:48px;color:var(--ink-light);font-size:16px;}
+.loading{text-align:center;padding:48px;color:var(--ink-light);}
+
+/* DETAIL MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,.7);
+  z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);max-width:640px;width:100%;max-height:90vh;overflow-y:auto;
+  border:2px solid var(--gold);position:relative;}
+.modal-head{background:var(--ink);color:var(--white);padding:16px 20px;
+  display:flex;justify-content:space-between;align-items:center;}
+.modal-head h2{font-family:'Scheherazade New',serif;font-size:20px;color:var(--gold-light);}
+.modal-close{background:none;border:none;color:var(--white);font-size:24px;cursor:pointer;line-height:1;}
+.modal-body{padding:20px;}
+.modal-info{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;
+  background:var(--gold-faint);border:1px solid var(--rule);padding:12px 16px;}
+.modal-info span{font-size:14px;}
+.modal-info strong{color:var(--ink);}
+.modal-review{display:flex;flex-direction:column;gap:8px;}
+.m-q{padding:10px 14px;border:1.5px solid #e0d8c8;font-size:14px;}
+.m-q.ok{border-right:4px solid #16a34a;}
+.m-q.err{border-right:4px solid #dc2626;}
+.m-q-text{font-family:'Scheherazade New',serif;font-size:15px;margin-bottom:6px;}
+.m-q-ans{font-size:13px;}
+.m-q-ans span{font-weight:700;}
+.ans-correct{color:#166534;}
+.ans-wrong{color:#991b1b;}
+
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  table{font-size:12px;}
+  .search-box{width:140px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-top">
+      <h1>لوحة تحكم المعلم</h1>
+      <p>اختبار لغتي — سموم قاتلة</p>
+    </div>
+    <div class="login-body">
+      <label>كلمة المرور</label>
+      <input type="password" id="key-input" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')doLogin()">
+      <p class="login-err" id="login-err">⚠ كلمة المرور غير صحيحة</p>
+      <button class="login-btn" onclick="doLogin()">دخول ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+  <div class="dash-header">
+    <h1>📊 لوحة تحكم المعلم — نتائج الاختبار</h1>
+    <div class="dash-actions">
+      <button class="btn btn-refresh" onclick="loadData()">🔄 تحديث</button>
+      <button class="btn btn-export" onclick="exportCSV()">⬇ تصدير Excel</button>
+      <button class="btn-logout" onclick="logout()">تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="st-total">—</div><div class="stat-lbl">إجمالي الطلاب</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-avg">—</div><div class="stat-lbl">متوسط الدرجات</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-high" style="color:var(--green)">—</div><div class="stat-lbl">أعلى درجة</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-low" style="color:var(--red)">—</div><div class="stat-lbl">أدنى درجة</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-pass" style="color:var(--blue)">—</div><div class="stat-lbl">ناجح (≥60%)</div></div>
+    </div>
+
+    <!-- Bar chart -->
+    <div class="chart-section">
+      <div class="chart-title">توزيع الدرجات</div>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-section">
+      <div class="table-header">
+        <h2>📋 إجابات الطلاب</h2>
+        <input class="search-box" id="search-box" placeholder="🔍 بحث بالاسم أو الفصل…" oninput="renderTable()">
+      </div>
+      <div id="table-wrap">
+        <div class="loading">⏳ جاري تحميل البيانات…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DETAIL MODAL ══ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modal-title">تفاصيل إجابات الطالب</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {q:'تتحدث نصوص وحدة "سموم قاتلة" بشكل رئيسي للتحذير من أضرار:',opts:['التلوث البيئي','الإسراف في المياه','المخدرات والتدخين','حوادث المرور'],ans:2},
+  {q:'من أبرز الأسباب التي تؤدي للوقوع في شباك المخدرات:',opts:['المحافظة على الصلاة','رفقاء السوء','القراءة المفيدة','ممارسة الرياضة'],ans:1},
+  {q:'في جملة "دخل محمد فخالد"، يفيد حرف العطف (الفاء):',opts:['الترتيب والتعقيب','الترتيب والتراخي','التخيير','مطلق الجمع'],ans:0},
+  {q:'حرف العطف الذي يفيد "التخيير" أو "الشك" هو:',opts:['الواو','ثُمَّ','الفاء','أو'],ans:3},
+  {q:'صيغة التعجب القياسية في اللغة العربية تأتي على وزنين، أحدهما:',opts:['مِفْعَل ومِفْعَال','ما أَفْعَلَه','فَعَلَ ويَفْعِل','فاعِل ومفعول'],ans:1},
+  {q:'علامة الترقيم المناسبة في نهاية جملة (ما أقبحَ الإدمان):',opts:['النقطة ( . )','علامة الاستفهام ( ؟ )','علامة التعجب ( ! )','الفاصلة ( ، )'],ans:2},
+  {q:'اسم الآلة المشتق من الفعل "نشر":',opts:['نَاشِر','مَنْشُور','نَشْر','مِنْشَار'],ans:3},
+  {q:'الكلمة التي تعتبر "اسم آلة جامد" (غير مشتق) فيما يلي هي:',opts:['مِكْنَسَة','سيف','مِفْتَاح','مِحْرَاث'],ans:1},
+  {q:'اسم الآلة "مِصْعَد" جاء على وزن:',opts:['مِفْعَال','مِفْعَلَة','مِفْعَل','فَعَّالَة'],ans:2},
+  {q:'الكلمة التي زيدت فيها الألف (وسطاً أو آخراً) بشكل صحيح هي:',opts:['هؤلاء','مائة','أولئك','الرحمن'],ans:1},
+  {q:'تزاد الألف بعد "واو الجماعة" للتفريق بينها وبين الواو الأصلية، وتسمى:',opts:['الألف اللينة','الألف المقصورة','الألف الفارقة','ألف الوصل'],ans:2},
+  {q:'المعطوف يتبع المعطوف عليه في:',opts:['التذكير فقط','الإعراب (الرفع والنصب والجر)','التأنيث فقط','العدد فقط'],ans:1},
+  {q:'أي من الجمل التالية تحوي أسلوب تعجب صحيح؟',opts:['أجملُ بالصبرِ؟','هل الصبر جميل؟','الصبرُ جميلٌ.','ما أجملَ الصبرَ!'],ans:3},
+  {q:'من حروف العطف التي تفيد "الترتيب والتراخي":',opts:['ثُمَّ','الواو','الفاء','أو'],ans:0},
+  {q:'"العقار الدامي" مصطلح يُطلق في الوحدة للتحذير من:',opts:['الأدوية الطبية المفيدة','المخدرات والمسكرات','المشروبات الصحية','الأطعمة الفاسدة'],ans:1},
+  {q:'اسم الآلة المشتق من الفعل "كَنَسَ":',opts:['كَانِس','مَكْنُوس','مِكْنَسَة','كَنْس'],ans:2},
+  {q:'الكلمة التي زيد فيها حرف "الواو" مما يلي هي:',opts:['مائة','أولو','كتبوا','ذلك'],ans:1},
+  {q:'الإعراب الصحيح لـ "المعطوف عليه" يكون:',opts:['مرفوعاً دائماً','مجروراً دائماً','منصوباً دائماً','حسب موقعه في الجملة'],ans:3},
+  {q:'وزن اسم الآلة "غَسَّالة" هو:',opts:['مِفْعَلَة','فَعَّالَة','مِفْعَال','فِعَالَة'],ans:1},
+  {q:'الهدف الأساسي من دراسة نصوص (سموم قاتلة) هو:',opts:['تعلم الصناعات الكيميائية','معرفة أنواع الأدوية','التوعية بمخاطر الإدمان','دراسة تاريخ الطب'],ans:2}
+];
+const KEYS=['أ','ب','ج','د'];
+
+const API = window.location.origin;
+let teacherKey = '';
+let allData = [];
+
+function doLogin(){
+  const key = document.getElementById('key-input').value.trim();
+  if(!key){ document.getElementById('login-err').style.display='block'; return; }
+  teacherKey = key;
+  loadData();
+}
+
+async function loadData(){
+  try {
+    const res = await fetch(`${API}/api/results`, {
+      headers: {'x-teacher-key': teacherKey}
+    });
+    if(res.status===401){
+      document.getElementById('login-err').style.display='block';
+      return;
+    }
+    const data = await res.json();
+    allData = data.submissions || [];
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    renderStats(data.stats);
+    renderChart(allData);
+    renderTable();
+  } catch(e){
+    alert('تعذر الاتصال بالسيرفر. تأكد أن السيرفر يعمل.');
+  }
+}
+
+function renderStats(s){
+  document.getElementById('st-total').textContent = s.total;
+  document.getElementById('st-avg').textContent   = s.avgScore + '/20';
+  document.getElementById('st-high').textContent  = s.highest + '/20';
+  document.getElementById('st-low').textContent   = s.lowest  + '/20';
+  document.getElementById('st-pass').textContent  = s.passed;
+}
+
+function renderChart(subs){
+  const ranges = [
+    {lbl:'18–20',color:'#16a34a',count:0},
+    {lbl:'15–17',color:'#2563eb',count:0},
+    {lbl:'12–14',color:'#d97706',count:0},
+    {lbl:'9–11', color:'#ea580c',count:0},
+    {lbl:'0–8',  color:'#dc2626',count:0},
+  ];
+  subs.forEach(s=>{
+    if(s.score>=18) ranges[0].count++;
+    else if(s.score>=15) ranges[1].count++;
+    else if(s.score>=12) ranges[2].count++;
+    else if(s.score>=9)  ranges[3].count++;
+    else ranges[4].count++;
+  });
+  const max = Math.max(...ranges.map(r=>r.count),1);
+  document.getElementById('bar-chart').innerHTML = ranges.map(r=>`
+    <div class="bar-row">
+      <div class="bar-lbl">${r.lbl}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${r.count/max*100}%;background:${r.color}">
+          ${r.count>0?r.count:''}
+        </div>
+      </div>
+      <div class="bar-num">${r.count}</div>
+    </div>`).join('');
+}
+
+function renderTable(){
+  const q = (document.getElementById('search-box').value||'').toLowerCase();
+  const filtered = allData.filter(s=>
+    s.name.toLowerCase().includes(q) ||
+    (s.className||'').toLowerCase().includes(q) ||
+    (s.seat||'').includes(q)
+  );
+  if(!filtered.length){
+    document.getElementById('table-wrap').innerHTML = '<div class="empty-state">لا توجد نتائج بعد</div>';
+    return;
+  }
+  const pill = s => {
+    if(s.pct>=80) return `<span class="score-pill pill-high">${s.score}/20</span>`;
+    if(s.pct>=60) return `<span class="score-pill pill-mid">${s.score}/20</span>`;
+    return `<span class="score-pill pill-low">${s.score}/20</span>`;
+  };
+  document.getElementById('table-wrap').innerHTML = `
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>الاسم</th>
+        <th>رقم الجلوس</th>
+        <th>الفصل</th>
+        <th>الدرجة</th>
+        <th>النسبة</th>
+        <th>وقت التسليم</th>
+        <th>تفاصيل</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filtered.map((s,i)=>`
+        <tr>
+          <td>${i+1}</td>
+          <td style="font-weight:700">${s.name}</td>
+          <td>${s.seat}</td>
+          <td>${s.className}</td>
+          <td>${pill(s)}</td>
+          <td>${s.pct}%</td>
+          <td style="font-size:12px;color:var(--ink-light)">${new Date(s.submittedAt).toLocaleString('ar-SA')}</td>
+          <td><button class="btn btn-export" style="padding:4px 12px;font-size:13px" onclick="showDetail('${s.id}')">عرض</button></td>
+          <td><button class="btn-del" onclick="deleteSubmission('${s.id}')" title="حذف">🗑</button></td>
+        </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function showDetail(id){
+  const s = allData.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('modal-title').textContent = `إجابات: ${s.name}`;
+  const rows = QUESTIONS.map((q,i)=>{
+    const ok = s.answers[i]===q.ans;
+    const studentAns = s.answers[i]!==null&&s.answers[i]!==undefined
+      ? `${KEYS[s.answers[i]]}) ${q.opts[s.answers[i]]}` : 'لم يجب';
+    const correctAns = `${KEYS[q.ans]}) ${q.opts[q.ans]}`;
+    return `<div class="m-q ${ok?'ok':'err'}">
+      <div class="m-q-text">${i+1}. ${q.q}</div>
+      <div class="m-q-ans">
+        إجابة الطالب: <span class="${ok?'ans-correct':'ans-wrong'}">${studentAns} ${ok?'✅':'❌'}</span>
+        ${!ok?`&nbsp;|&nbsp; الصحيح: <span class="ans-correct">${correctAns}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-info">
+      <span>الاسم: <strong>${s.name}</strong></span>
+      <span>الفصل: <strong>${s.className}</strong></span>
+      <span>الدرجة: <strong>${s.score}/20 (${s.pct}%)</strong></span>
+    </div>
+    <div class="modal-review">${rows}</div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+}
+
+async function deleteSubmission(id){
+  if(!confirm('هل أنت متأكد من حذف هذا الطالب؟')) return;
+  const res = await fetch(`${API}/api/results/${id}`,{
+    method:'DELETE', headers:{'x-teacher-key':teacherKey}
+  });
+  if(res.ok){ allData = allData.filter(x=>x.id!==id); renderTable(); }
+}
+
+function exportCSV(){
+  window.open(`${API}/api/results/export`, '_blank');
+}
+
+function logout(){
+  teacherKey='';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('key-input').value='';
+}
+
+// Close modal on overlay click
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+</script>
+</body>
+</html>

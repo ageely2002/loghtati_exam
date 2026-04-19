@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار لغتي — سموم قاتلة</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e; --ink-mid:#2d2d4e; --ink-light:#6b7280;
+  --gold:#b8952a; --gold-light:#d4af5a; --gold-faint:#faf4e6;
+  --rule:#c5b27a; --white:#fff; --red:#8b1a1a;
+  --green:#166534; --green-bg:#dcfce7; --red-bg:#fee2e2;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Naskh Arabic',serif;background:#cfc7b5;
+  background-image:repeating-linear-gradient(90deg,rgba(180,160,100,.07) 0 1px,transparent 1px 44px),
+  repeating-linear-gradient(0deg,rgba(180,160,100,.07) 0 1px,transparent 1px 44px);
+  min-height:100vh;color:var(--ink);}
+
+/* SCREENS */
+.screen{display:none;}
+#cover.active{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;}
+#exam.active,#result.active{display:block;}
+
+/* COVER */
+.cover-card{background:var(--white);border:2px solid var(--gold);max-width:540px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;}
+.cover-card::before{content:'';position:absolute;inset:4px;border:.75px solid var(--rule);pointer-events:none;}
+.cover-top{background:var(--ink);padding:28px 32px 20px;text-align:center;}
+.cover-logo{height:52px;filter:brightness(0) invert(1);opacity:.85;display:block;margin:0 auto 10px;}
+.cover-badge{display:inline-block;background:var(--gold);color:var(--ink);font-size:13px;
+  font-weight:700;padding:3px 20px;letter-spacing:.06em;margin-bottom:10px;}
+.cover-title{font-family:'Scheherazade New',serif;font-size:26px;font-weight:700;
+  color:var(--gold-light);line-height:1.4;}
+.cover-sub{font-size:14px;color:rgba(255,255,255,.6);margin-top:6px;}
+.cover-body{padding:28px 32px;}
+.info-row{display:flex;justify-content:space-around;background:var(--gold-faint);
+  border:1px solid var(--rule);padding:10px 16px;margin-bottom:16px;font-size:14px;gap:8px;flex-wrap:wrap;text-align:center;}
+.info-row strong{display:block;font-size:16px;color:var(--ink);}
+.info-row span{font-size:12px;color:var(--ink-light);}
+.field-group{margin-bottom:14px;}
+.field-group label{display:block;font-size:15px;font-weight:700;color:var(--ink-mid);margin-bottom:6px;}
+.field-group input{width:100%;border:1.5px solid var(--rule);padding:10px 14px;
+  font-family:'Noto Naskh Arabic',serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .2s;}
+.field-group input:focus{border-color:var(--gold);}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.start-btn{width:100%;background:var(--ink);color:var(--white);border:none;padding:14px;
+  font-family:'Noto Naskh Arabic',serif;font-size:18px;font-weight:700;cursor:pointer;
+  border-right:5px solid var(--gold);transition:background .2s;margin-top:8px;}
+.start-btn:hover{background:#2d2d4e;}
+.err{color:var(--red);font-size:13px;margin-top:6px;display:none;}
+
+/* EXAM */
+.exam-header{background:var(--ink);color:var(--white);padding:12px 24px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.exam-header-title{font-family:'Scheherazade New',serif;font-size:18px;font-weight:700;color:var(--gold-light);}
+.student-chip{font-size:13px;background:rgba(255,255,255,.1);padding:4px 12px;
+  border-right:3px solid var(--gold);color:rgba(255,255,255,.9);}
+.progress-bar-wrap{position:sticky;top:53px;z-index:99;background:#e9e3d6;height:5px;}
+.progress-bar-fill{height:100%;background:var(--gold);transition:width .4s ease;width:0%;}
+.questions-wrap{max-width:820px;margin:0 auto;padding:28px 20px 120px;}
+.section-hdr{background:var(--ink);color:var(--white);padding:10px 18px;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;border-right:5px solid var(--gold);}
+.section-hdr-num{font-family:'Scheherazade New',serif;font-size:22px;color:var(--gold-light);font-weight:700;}
+.section-hdr-text{font-size:14px;font-weight:600;line-height:1.5;}
+.q-card{background:var(--white);border:1.5px solid #ddd5c0;margin-bottom:14px;transition:border-color .2s;}
+.q-card:hover{border-color:var(--gold);}
+.q-card.answered{border-right:4px solid var(--gold);}
+.q-card-inner{padding:16px 18px;}
+.q-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;}
+.q-badge{background:var(--ink);color:var(--gold-light);font-family:'Scheherazade New',serif;
+  font-size:18px;font-weight:700;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.q-text{font-family:'Scheherazade New',serif;font-size:18px;font-weight:700;line-height:1.7;padding-top:2px;}
+.q-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.opt-radio{display:none;}
+.opt-label{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0d8c8;
+  cursor:pointer;transition:background .15s,border-color .15s;font-size:15.5px;color:var(--ink-mid);}
+.opt-label:hover{background:var(--gold-faint);border-color:var(--gold);}
+.opt-radio:checked+.opt-label{background:var(--ink);color:var(--white);border-color:var(--ink);font-weight:600;}
+.opt-key{font-weight:700;color:var(--gold);min-width:20px;}
+.opt-radio:checked+.opt-label .opt-key{color:var(--gold-light);}
+.submit-bar{position:fixed;bottom:0;right:0;left:0;background:var(--white);
+  border-top:2px solid var(--rule);padding:14px 24px;display:flex;
+  align-items:center;justify-content:space-between;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.1);}
+.answered-count{font-size:15px;color:var(--ink-mid);}
+.answered-count strong{color:var(--ink);font-size:18px;}
+.submit-btn{background:var(--gold);color:var(--ink);border:none;padding:12px 32px;
+  font-family:'Noto Naskh Arabic',serif;font-size:17px;font-weight:700;cursor:pointer;
+  border-right:4px solid var(--ink);transition:background .2s;}
+.submit-btn:hover{background:var(--gold-light);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* RESULT */
+.result-header{background:var(--ink);color:var(--white);padding:24px;text-align:center;}
+.result-header h1{font-family:'Scheherazade New',serif;font-size:28px;color:var(--gold-light);margin-bottom:4px;}
+.result-header p{font-size:15px;color:rgba(255,255,255,.7);}
+.result-body{max-width:820px;margin:0 auto;padding:28px 20px;}
+.score-circle-wrap{text-align:center;margin-bottom:28px;}
+.score-circle{width:160px;height:160px;border-radius:50%;background:var(--white);
+  border:6px solid var(--gold);display:inline-flex;flex-direction:column;align-items:center;
+  justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.12);margin-bottom:16px;}
+.score-num{font-family:'Scheherazade New',serif;font-size:52px;font-weight:700;color:var(--ink);line-height:1;}
+.score-denom{font-size:15px;color:var(--ink-light);}
+.score-pct{font-size:22px;font-weight:700;margin-top:4px;}
+.grade-msg{font-family:'Scheherazade New',serif;font-size:22px;font-weight:700;margin-top:6px;}
+.student-result-info{background:var(--gold-faint);border:1.5px solid var(--rule);
+  padding:14px 20px;display:flex;justify-content:space-around;flex-wrap:wrap;
+  gap:12px;margin-bottom:24px;text-align:center;}
+.info-item .lbl{font-size:13px;color:var(--ink-light);}
+.info-item .val{font-size:17px;font-weight:700;color:var(--ink);}
+.sent-badge{background:var(--green-bg);color:var(--green);border:1.5px solid #16a34a;
+  padding:10px 20px;text-align:center;font-size:15px;font-weight:700;margin-bottom:20px;}
+.review-title{background:var(--ink);color:var(--white);padding:10px 18px;font-size:16px;
+  font-weight:700;border-right:5px solid var(--gold);margin-bottom:14px;}
+.review-card{background:var(--white);border:1.5px solid #ddd5c0;margin-bottom:12px;padding:14px 18px;}
+.review-card.correct{border-right:5px solid #16a34a;}
+.review-card.wrong{border-right:5px solid #dc2626;}
+.review-q{font-family:'Scheherazade New',serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+.review-q .rn{background:var(--ink);color:var(--gold-light);font-size:15px;padding:1px 8px;margin-left:8px;}
+.review-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.review-opt{padding:7px 12px;border:1.5px solid #e0d8c8;font-size:15px;display:flex;align-items:center;gap:8px;}
+.review-opt .rk{font-weight:700;color:var(--ink-light);min-width:18px;}
+.correct-ans{background:var(--green-bg);border-color:#16a34a;color:var(--green);}
+.correct-ans .rk{color:#166534;}
+.student-wrong{background:var(--red-bg);border-color:#dc2626;color:#991b1b;}
+.student-wrong .rk{color:#991b1b;}
+.result-actions{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;}
+.btn-retry{flex:1;background:var(--ink);color:var(--white);border:none;padding:13px;
+  font-family:'Noto Naskh Arabic',serif;font-size:16px;font-weight:700;cursor:pointer;
+  border-right:4px solid var(--gold);transition:background .2s;}
+.btn-retry:hover{background:var(--ink-mid);}
+.sending-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,.85);
+  z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:#fff;
+  font-size:20px;font-family:'Scheherazade New',serif;}
+.sending-overlay.show{display:flex;}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.2);
+  border-top-color:var(--gold-light);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.q-options,.review-opts,.split{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- Sending overlay -->
+<div class="sending-overlay" id="sending-overlay">
+  <div class="spinner"></div>
+  <span>جاري إرسال إجاباتك…</span>
+</div>
+
+<!-- ══ COVER ══ -->
+<div id="cover" class="screen active">
+  <div class="cover-card">
+    <div class="cover-top">
+      <img class="cover-logo"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Ministry_of_Education_Saudi_Arabia.svg/300px-Ministry_of_Education_Saudi_Arabia.svg.png"
+        alt="" onerror="this.style.display='none'">
+      <div class="cover-badge">اختبار فتري</div>
+      <div class="cover-title">الوحدة الخامسة<br>سموم قاتلة</div>
+      <div class="cover-sub">لغتي الخالدة — الصف الثالث المتوسط</div>
+    </div>
+    <div class="cover-body">
+      <div class="info-row">
+        <div><strong>20</strong><span>الدرجة الكلية</span></div>
+        <div><strong>الثاني</strong><span>الفصل الدراسي</span></div>
+        <div><strong>20</strong><span>عدد الأسئلة</span></div>
+      </div>
+      <div class="field-group">
+        <label>اسم الطالب / الطالبة <span style="color:var(--red)">*</span></label>
+        <input type="text" id="inp-name" placeholder="اكتب اسمك الكامل هنا">
+      </div>
+      <div class="split">
+        <div class="field-group">
+          <label>رقم الجلوس</label>
+          <input type="text" id="inp-seat" placeholder="رقم الجلوس">
+        </div>
+        <div class="field-group">
+          <label>الفصل</label>
+          <input type="text" id="inp-class" placeholder="مثال: 3/1">
+        </div>
+      </div>
+      <p class="err" id="cover-err">⚠ يرجى كتابة الاسم قبل البدء</p>
+      <button class="start-btn" onclick="startExam()">ابدأ الاختبار ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXAM ══ -->
+<div id="exam" class="screen">
+  <div class="exam-header">
+    <div class="exam-header-title">اختبار لغتي — سموم قاتلة</div>
+    <div class="student-chip" id="hdr-name"></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog"></div></div>
+  <div class="questions-wrap">
+    <div class="section-hdr">
+      <span class="section-hdr-num">١</span>
+      <span class="section-hdr-text">اختر الإجابة الصحيحة بوضع علامة على الدائرة المناسبة لكل مما يلي:</span>
+    </div>
+    <div id="q-container"></div>
+  </div>
+  <div class="submit-bar">
+    <div class="answered-count">أجبت عن <strong id="ans-count">0</strong> من أصل 20 سؤالاً</div>
+    <button class="submit-btn" onclick="submitExam()">إرسال الإجابات ✓</button>
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div id="result" class="screen">
+  <div class="result-header">
+    <h1>نتيجة الاختبار</h1>
+    <p>لغتي الخالدة — الوحدة الخامسة: سموم قاتلة</p>
+  </div>
+  <div class="result-body">
+    <div class="score-circle-wrap">
+      <div class="score-circle">
+        <div class="score-num" id="res-score">0</div>
+        <div class="score-denom">من 20</div>
+      </div>
+      <div class="score-pct" id="res-pct"></div>
+      <div class="grade-msg" id="res-msg"></div>
+    </div>
+    <div class="student-result-info">
+      <div class="info-item"><div class="lbl">الاسم</div><div class="val" id="res-name">—</div></div>
+      <div class="info-item"><div class="lbl">رقم الجلوس</div><div class="val" id="res-seat">—</div></div>
+      <div class="info-item"><div class="lbl">الفصل</div><div class="val" id="res-class">—</div></div>
+      <div class="info-item"><div class="lbl">صحيح</div><div class="val" id="res-correct" style="color:var(--green)">—</div></div>
+      <div class="info-item"><div class="lbl">خاطئ</div><div class="val" id="res-wrong" style="color:var(--red)">—</div></div>
+    </div>
+    <div class="sent-badge" id="sent-badge" style="display:none">
+      ✅ تم إرسال إجاباتك للمعلم بنجاح
+    </div>
+    <div class="review-title">📋 مراجعة الإجابات</div>
+    <div id="review-container"></div>
+    <div class="result-actions">
+      <button class="btn-retry" onclick="retryExam()">🔄 إعادة الاختبار</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {q:'تتحدث نصوص وحدة "سموم قاتلة" بشكل رئيسي للتحذير من أضرار:',opts:['التلوث البيئي','الإسراف في المياه','المخدرات والتدخين','حوادث المرور'],ans:2},
+  {q:'من أبرز الأسباب التي تؤدي للوقوع في شباك المخدرات:',opts:['المحافظة على الصلاة','رفقاء السوء','القراءة المفيدة','ممارسة الرياضة'],ans:1},
+  {q:'في جملة "دخل محمد فخالد"، يفيد حرف العطف (الفاء):',opts:['الترتيب والتعقيب','الترتيب والتراخي','التخيير','مطلق الجمع'],ans:0},
+  {q:'حرف العطف الذي يفيد "التخيير" أو "الشك" هو:',opts:['الواو','ثُمَّ','الفاء','أو'],ans:3},
+  {q:'صيغة التعجب القياسية في اللغة العربية تأتي على وزنين، أحدهما:',opts:['مِفْعَل ومِفْعَال','ما أَفْعَلَه','فَعَلَ ويَفْعِل','فاعِل ومفعول'],ans:1},
+  {q:'علامة الترقيم المناسبة في نهاية جملة (ما أقبحَ الإدمان):',opts:['النقطة ( . )','علامة الاستفهام ( ؟ )','علامة التعجب ( ! )','الفاصلة ( ، )'],ans:2},
+  {q:'اسم الآلة المشتق من الفعل "نشر":',opts:['نَاشِر','مَنْشُور','نَشْر','مِنْشَار'],ans:3},
+  {q:'الكلمة التي تعتبر "اسم آلة جامد" (غير مشتق) فيما يلي هي:',opts:['مِكْنَسَة','سيف','مِفْتَاح','مِحْرَاث'],ans:1},
+  {q:'اسم الآلة "مِصْعَد" جاء على وزن:',opts:['مِفْعَال','مِفْعَلَة','مِفْعَل','فَعَّالَة'],ans:2},
+  {q:'الكلمة التي زيدت فيها الألف (وسطاً أو آخراً) بشكل صحيح هي:',opts:['هؤلاء','مائة','أولئك','الرحمن'],ans:1},
+  {q:'تزاد الألف بعد "واو الجماعة" للتفريق بينها وبين الواو الأصلية، وتسمى:',opts:['الألف اللينة','الألف المقصورة','الألف الفارقة','ألف الوصل'],ans:2},
+  {q:'المعطوف يتبع المعطوف عليه في:',opts:['التذكير فقط','الإعراب (الرفع والنصب والجر)','التأنيث فقط','العدد فقط'],ans:1},
+  {q:'أي من الجمل التالية تحوي أسلوب تعجب صحيح؟',opts:['أجملُ بالصبرِ؟','هل الصبر جميل؟','الصبرُ جميلٌ.','ما أجملَ الصبرَ!'],ans:3},
+  {q:'من حروف العطف التي تفيد "الترتيب والتراخي":',opts:['ثُمَّ','الواو','الفاء','أو'],ans:0},
+  {q:'"العقار الدامي" مصطلح يُطلق في الوحدة للتحذير من:',opts:['الأدوية الطبية المفيدة','المخدرات والمسكرات','المشروبات الصحية','الأطعمة الفاسدة'],ans:1},
+  {q:'اسم الآلة المشتق من الفعل "كَنَسَ":',opts:['كَانِس','مَكْنُوس','مِكْنَسَة','كَنْس'],ans:2},
+  {q:'الكلمة التي زيد فيها حرف "الواو" مما يلي هي:',opts:['مائة','أولو','كتبوا','ذلك'],ans:1},
+  {q:'الإعراب الصحيح لـ "المعطوف عليه" يكون:',opts:['مرفوعاً دائماً','مجروراً دائماً','منصوباً دائماً','حسب موقعه في الجملة'],ans:3},
+  {q:'وزن اسم الآلة "غَسَّالة" هو:',opts:['مِفْعَلَة','فَعَّالَة','مِفْعَال','فِعَالَة'],ans:1},
+  {q:'الهدف الأساسي من دراسة نصوص (سموم قاتلة) هو:',opts:['تعلم الصناعات الكيميائية','معرفة أنواع الأدوية','التوعية بمخاطر الإدمان','دراسة تاريخ الطب'],ans:2}
+];
+
+const AR = ['١','٢','٣','٤','٥','٦','٧','٨','٩','١٠','١١','١٢','١٣','١٤','١٥','١٦','١٧','١٨','١٩','٢٠'];
+const KEYS = ['أ','ب','ج','د'];
+let studentName='', studentSeat='', studentClass='';
+let answers = new Array(20).fill(null);
+
+// Auto-detect server URL
+const API = window.location.origin;
+
+function buildQuestions(){
+  const c = document.getElementById('q-container');
+  c.innerHTML = '';
+  QUESTIONS.forEach((q,i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card' + (answers[i]!==null?' answered':'');
+    card.id = `qcard-${i}`;
+    card.innerHTML = `<div class="q-card-inner">
+      <div class="q-header">
+        <div class="q-badge">${AR[i]}</div>
+        <div class="q-text">${q.q}</div>
+      </div>
+      <div class="q-options">
+        ${q.opts.map((o,j)=>`
+          <div>
+            <input type="radio" class="opt-radio" name="q${i}" id="q${i}o${j}" value="${j}"
+              onchange="selectAns(${i},${j})" ${answers[i]===j?'checked':''}>
+            <label class="opt-label" for="q${i}o${j}">
+              <span class="opt-key">${KEYS[j]})</span>${o}
+            </label>
+          </div>`).join('')}
+      </div>
+    </div>`;
+    c.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectAns(qi,val){
+  answers[qi]=val;
+  document.getElementById(`qcard-${qi}`).classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress(){
+  const done = answers.filter(a=>a!==null).length;
+  document.getElementById('ans-count').textContent = done;
+  document.getElementById('prog').style.width = (done/20*100)+'%';
+}
+
+function startExam(){
+  const name = document.getElementById('inp-name').value.trim();
+  if(!name){ document.getElementById('cover-err').style.display='block'; return; }
+  studentName  = name;
+  studentSeat  = document.getElementById('inp-seat').value.trim() || '—';
+  studentClass = document.getElementById('inp-class').value.trim() || '—';
+  document.getElementById('hdr-name').textContent = '👤 ' + studentName;
+  answers = new Array(20).fill(null);
+  buildQuestions();
+  showScreen('exam');
+  window.scrollTo(0,0);
+}
+
+async function submitExam(){
+  const unanswered = answers.filter(a=>a===null).length;
+  if(unanswered>0){
+    if(!confirm(`لا تزال هناك ${unanswered} أسئلة لم تجب عنها. هل تريد الإرسال؟`)) return;
+  }
+
+  let score = 0;
+  QUESTIONS.forEach((q,i)=>{ if(answers[i]===q.ans) score++; });
+
+  // Show sending overlay
+  document.getElementById('sending-overlay').classList.add('show');
+
+  let sent = false;
+  try {
+    const res = await fetch(`${API}/api/submit`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: studentName, seat: studentSeat,
+        className: studentClass, answers, score, total: 20
+      })
+    });
+    if(res.ok) sent = true;
+  } catch(e){ console.warn('Server not reachable:', e); }
+
+  document.getElementById('sending-overlay').classList.remove('show');
+  showResult(score, sent);
+}
+
+function showResult(score, sent){
+  const pct = Math.round(score/20*100);
+  let msg='', color='';
+  if(pct>=90){msg='🌟 ممتاز — أحسنت يا نجم!';color='#166534';}
+  else if(pct>=80){msg='🎉 جيد جداً — عمل رائع!';color='#1d4ed8';}
+  else if(pct>=70){msg='👍 جيد — استمر في التقدم';color='#92400e';}
+  else if(pct>=60){msg='✊ مقبول — يمكنك التحسن';color='#b45309';}
+  else{msg='📚 بحاجة لمراجعة الوحدة';color='#991b1b';}
+
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-pct').textContent = pct+'%';
+  document.getElementById('res-pct').style.color = color;
+  document.getElementById('res-msg').textContent = msg;
+  document.getElementById('res-msg').style.color = color;
+  document.getElementById('res-name').textContent = studentName;
+  document.getElementById('res-seat').textContent = studentSeat;
+  document.getElementById('res-class').textContent = studentClass;
+  document.getElementById('res-correct').textContent = score;
+  document.getElementById('res-wrong').textContent = 20-score;
+  document.getElementById('sent-badge').style.display = sent ? 'block' : 'none';
+
+  const rc = document.getElementById('review-container');
+  rc.innerHTML = '';
+  QUESTIONS.forEach((q,i)=>{
+    const ok = answers[i]===q.ans;
+    const card = document.createElement('div');
+    card.className = 'review-card '+(ok?'correct':'wrong');
+    const optsHtml = q.opts.map((o,j)=>{
+      let cls='';
+      if(j===q.ans) cls='correct-ans';
+      else if(j===answers[i]&&!ok) cls='student-wrong';
+      const icon = j===q.ans?'✓ ':(j===answers[i]&&!ok?'✗ ':'');
+      return `<div class="review-opt ${cls}"><span class="rk">${KEYS[j]})</span>${icon}${o}</div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="review-q">
+        <span class="rn">${AR[i]}</span>${q.q}
+        <span style="float:left">${ok?'✅':'❌'}</span>
+      </div>
+      <div class="review-opts">${optsHtml}</div>
+      ${!ok&&answers[i]!==null?`<div style="margin-top:8px;font-size:13px;color:var(--ink-light)">إجابتك: ${KEYS[answers[i]]}) — الصحيح: ${KEYS[q.ans]})</div>`:''}
+      ${answers[i]===null?`<div style="margin-top:8px;font-size:13px;color:var(--ink-light)">لم تجب عن هذا السؤال</div>`:''}
+    `;
+    rc.appendChild(card);
+  });
+  showScreen('result');
+  window.scrollTo(0,0);
+}
+
+function retryExam(){
+  answers = new Array(20).fill(null);
+  buildQuestions();
+  showScreen('exam');
+  window.scrollTo(0,0);
+}
+
+function showScreen(id){
+  ['cover','exam','result'].forEach(s=>document.getElementById(s).classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
